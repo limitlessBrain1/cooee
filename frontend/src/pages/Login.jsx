@@ -1,8 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
 
-
-
 export default function Login() {
   const [email, setEmail] = useState("test@cooee.com");
   const [password, setPassword] = useState("password123");
@@ -11,6 +9,7 @@ export default function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
       const res = await api.post("/api/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
@@ -44,6 +43,17 @@ export default function Login() {
 
         {error ? <p style={{ color: "crimson" }}>{error}</p> : null}
       </form>
+
+      {/* ✅ Sign up link */}
+      <p style={{ marginTop: 14, textAlign: "center" }}>
+        Don’t have an account?{" "}
+        <span
+          style={{ color: "#6c63ff", cursor: "pointer", fontWeight: 600 }}
+          onClick={() => (window.location.href = "/register")}
+        >
+          Sign up
+        </span>
+      </p>
     </div>
   );
 }
