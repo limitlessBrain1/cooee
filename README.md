@@ -1,4 +1,4 @@
-# Product Inventory Management System (Cooee Assignment)
+# Cooee: Product Inventory Management System 
 
 A full-stack **Product Inventory Management System** built using **React, Node.js, Express, and MongoDB**.  
 The application supports **JWT-based authentication**, **protected inventory operations**, and full **Product CRUD** functionality with **search, filter, sorting**, and a **Low Stock Alert indicator**.
@@ -11,7 +11,7 @@ The application supports **JWT-based authentication**, **protected inventory ope
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB (Mongoose)
 - **Authentication:** JWT (JSON Web Token)
-- **Styling:** CSS / Inline styles
+- **Styling:** CSS 
 
 ---
 
