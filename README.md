@@ -61,7 +61,7 @@ Or create your own account via the signup page.
 ---
 
 ## 📂 Project Structure
-
+---
 cooee/
 │
 ├── frontend/
@@ -109,6 +109,7 @@ cooee/
 ├── screenshots/                 # App screenshots
 ├── .gitignore
 └── README.md
+---
 ```
 
 ---
