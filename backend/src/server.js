@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./config/db.js";
 import mongoose from "mongoose";
-import expressListEndpoints from "express-list-endpoints";
+
 
 
 dotenv.config();
