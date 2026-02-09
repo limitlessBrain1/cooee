@@ -24,8 +24,10 @@ export default function Products() {
     async ({ nextPage = page } = {}) => {
       setLoading(true);
       setError("");
+
       try {
-        const res = await api.get("/api/products", {
+        // ✅ FIX: backend uses /api/v1/products
+        const res = await api.get("/api/v1/products", {
           params: { search, category, sort, page: nextPage, limit },
         });
 
@@ -48,7 +50,10 @@ export default function Products() {
         }
       } catch (err) {
         const status = err?.response?.status;
-        setError(err?.response?.data?.message || err.message || "Failed to load products");
+        setError(
+          err?.response?.data?.message || err.message || "Failed to load products"
+        );
+
         if (status === 401) {
           localStorage.removeItem("token");
           window.location.href = "/";
@@ -79,12 +84,15 @@ export default function Products() {
   const handleSubmit = async (payload) => {
     setSaving(true);
     setError("");
+
     try {
       if (modalMode === "create") {
-        await api.post("/api/products", payload);
+        // ✅ FIX: backend uses /api/v1/products
+        await api.post("/api/v1/products", payload);
       } else {
         if (!selected?._id) throw new Error("Missing product id");
-        await api.put(`/api/products/${selected._id}`, payload);
+        // ✅ FIX: backend uses /api/v1/products/:id
+        await api.put(`/api/v1/products/${selected._id}`, payload);
       }
 
       setModalOpen(false);
@@ -92,6 +100,7 @@ export default function Products() {
       await fetchProducts({ nextPage: 1 });
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || "Save failed";
+
       if (msg.includes("E11000") && msg.toLowerCase().includes("sku")) {
         setError("SKU already exists. Please use a unique SKU.");
       } else {
@@ -104,6 +113,7 @@ export default function Products() {
 
   const handleDelete = async (p) => {
     const id = p?._id;
+
     if (!id) {
       setError("Missing product id (_id). Cannot delete.");
       return;
@@ -113,8 +123,10 @@ export default function Products() {
     if (!ok) return;
 
     setError("");
+
     try {
-      await api.delete(`/api/products/${id}`);
+      // ✅ FIX: backend uses /api/v1/products/:id
+      await api.delete(`/api/v1/products/${id}`);
       setPage(1);
       await fetchProducts({ nextPage: 1 });
     } catch (err) {
@@ -122,17 +134,24 @@ export default function Products() {
     }
   };
 
-  const categories = Array.from(new Set(items.map((p) => p.category).filter(Boolean)));
+  const categories = Array.from(
+    new Set(items.map((p) => p.category).filter(Boolean))
+  );
 
   return (
     <Layout
       title="Products"
       right={
         <div style={{ display: "flex", gap: 10 }}>
-          <button style={{ width: 140 }} onClick={openCreate}>+ Add Product</button>
+          <button style={{ width: 140 }} onClick={openCreate}>
+            + Add Product
+          </button>
           <button
             style={{ width: 110, background: "#111" }}
-            onClick={() => { localStorage.removeItem("token"); window.location.href = "/"; }}
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/";
+            }}
           >
             Logout
           </button>
@@ -147,12 +166,24 @@ export default function Products() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ minWidth: 180 }}>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={{ minWidth: 180 }}
+        >
           <option value="">All categories</option>
-          {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
         </select>
 
-        <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ minWidth: 180 }}>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          style={{ minWidth: 180 }}
+        >
           <option value="newest">Newest</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
@@ -160,7 +191,10 @@ export default function Products() {
 
         <button
           style={{ width: 120 }}
-          onClick={() => { setPage(1); fetchProducts({ nextPage: 1 }); }}
+          onClick={() => {
+            setPage(1);
+            fetchProducts({ nextPage: 1 });
+          }}
         >
           Apply
         </button>
@@ -170,31 +204,56 @@ export default function Products() {
       {error ? <p style={{ color: "crimson", margin: 0 }}>{error}</p> : null}
 
       <div style={{ overflowX: "auto", border: "1px solid #eee", borderRadius: 14 }}>
-        <table width="100%" cellPadding="12" style={{ borderCollapse: "collapse", background: "#fff" }}>
+        <table
+          width="100%"
+          cellPadding="12"
+          style={{ borderCollapse: "collapse", background: "#fff" }}
+        >
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>
-              <th>Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Qty</th><th>Actions</th>
+              <th>Name</th>
+              <th>SKU</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {items.map((p) => {
               const lowStock = Number(p.quantity) < 10;
+
               return (
                 <tr
                   key={p._id}
-                  style={{ borderBottom: "1px solid #f4f4f4", background: lowStock ? "#fff3f3" : "transparent" }}
+                  style={{
+                    borderBottom: "1px solid #f4f4f4",
+                    background: lowStock ? "#fff3f3" : "transparent",
+                  }}
                 >
                   <td style={{ fontWeight: 600 }}>{p.name}</td>
                   <td>{p.sku}</td>
                   <td>{p.category}</td>
                   <td>{p.price}</td>
                   <td>
-                    {p.quantity} {lowStock ? <span style={{ color: "crimson", fontWeight: 700 }}>(Low)</span> : null}
+                    {p.quantity}{" "}
+                    {lowStock ? (
+                      <span style={{ color: "crimson", fontWeight: 700 }}>
+                        (Low)
+                      </span>
+                    ) : null}
                   </td>
+
                   <td>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={() => openEdit(p)}>Edit</button>
-                      <button onClick={() => handleDelete(p)} style={{ background: "#111" }}>Delete</button>
+                      <button
+                        onClick={() => handleDelete(p)}
+                        style={{ background: "#111" }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -202,16 +261,38 @@ export default function Products() {
             })}
 
             {!loading && items.length === 0 ? (
-              <tr><td colSpan="6" style={{ padding: 16 }}>No products found</td></tr>
+              <tr>
+                <td colSpan="6" style={{ padding: 16 }}>
+                  No products found
+                </td>
+              </tr>
             ) : null}
           </tbody>
         </table>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14 }}>
-        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Prev</button>
-        <span style={{ fontWeight: 600 }}>Page {page} / {meta.totalPages} • Total: {meta.total}</span>
-        <button disabled={page >= meta.totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: 14,
+        }}
+      >
+        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+          Prev
+        </button>
+
+        <span style={{ fontWeight: 600 }}>
+          Page {page} / {meta.totalPages} • Total: {meta.total}
+        </span>
+
+        <button
+          disabled={page >= meta.totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
       </div>
 
       <ProductModal
