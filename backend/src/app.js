@@ -8,6 +8,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.disable("etag"); // ✅ prevent 304 responses
+
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 
